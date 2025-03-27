@@ -123,7 +123,7 @@ export function useAxisTooltip(): UseAxisTooltipReturnValue | null {
     ((v: string | number | Date) =>
       usedAxis.scaleType === 'utc' ? utcFormatter(v) : v.toLocaleString());
 
-  const axisFormattedValue = axisFormatter(axisValue, {
+  const axisFormattedValue = axisFormatter?.(axisValue, {
     location: 'tooltip',
     scale: usedAxis.scale,
   });

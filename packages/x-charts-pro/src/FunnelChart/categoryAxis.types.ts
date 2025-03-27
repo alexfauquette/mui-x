@@ -22,10 +22,11 @@ export type CategoryAxis = {
    * - If the axis is vertical, the size is the width of the axis.
    */
   size?: number;
+  scaleType?: 'band' | 'linear'
 } & MakeOptional<
   Pick<
     AxisConfig<ScaleName, any>,
-    'disableLine' | 'disableTicks' | 'scaleType' | 'tickLabelStyle' | 'tickSize' | 'id'
+    'disableLine' | 'disableTicks' | 'tickLabelStyle' | 'tickSize' | 'id'
   >,
   'id'
 >;

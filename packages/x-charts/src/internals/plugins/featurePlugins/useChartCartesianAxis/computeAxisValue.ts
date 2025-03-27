@@ -9,7 +9,7 @@ import {
   AxisId,
 } from '../../../../models/axis';
 import { CartesianChartSeriesType, ChartSeriesType } from '../../../../models/seriesType/config';
-import { getColorScale, getOrdinalColorScale } from '../../../colorScale';
+import { getOrdinalColorScale, getSequentialColorScale } from '../../../colorScale';
 import { getTickNumber } from '../../../../hooks/useTicks';
 import { getScale } from '../../../getScale';
 import { zoomScaleRange } from './zoom';
@@ -23,7 +23,7 @@ import { GetZoomAxisFilters, ZoomData } from './zoom.types';
 function getRange(
   drawingArea: ChartDrawingArea,
   axisDirection: 'x' | 'y', // | 'rotation' | 'radius',
-  axis: AxisConfig<ScaleName, any, ChartsAxisProps>,
+  axis: AxisConfig<ScaleName, any, ChartsYAxisProps | ChartsXAxisProps>,
 ): [number, number] {
   const range: [number, number] =
     axisDirection === 'x'
@@ -84,8 +84,10 @@ export function computeAxisValue<T extends ChartSeriesType>({
   zoomOptions,
   getFilters,
 }: ComputeCommonParams<T> & {
-  axis?: AxisConfig[];
-  axisDirection: 'x' | 'y'; // | 'radius' | 'rotation';
+  axis?: typeof axisDirection extends 'x'
+    ? AxisConfig<ScaleName, any, ChartsXAxisProps>[]
+    : AxisConfig<ScaleName, any, ChartsYAxisProps>[];
+  axisDirection: 'x' | 'y';
 }) {
   if (allAxis === undefined) {
     return {
@@ -94,116 +96,142 @@ export function computeAxisValue<T extends ChartSeriesType>({
     };
   }
 
-  const completeAxis: DefaultizedAxisConfig<ChartsAxisProps> = {};
-  allAxis.forEach((eachAxis, axisIndex) => {
-    const axis = eachAxis as Readonly<AxisConfig<ScaleName, any, Readonly<ChartsAxisProps>>>;
-    const zoomOption = zoomOptions?.[axis.id];
-    const zoom = zoomMap?.get(axis.id);
-    const zoomRange: [number, number] = zoom ? [zoom.start, zoom.end] : [0, 100];
-    const range = getRange(drawingArea, axisDirection, axis);
+  const completeAxis: [typeof axisDirection] extends ['x']
+    ? DefaultizedAxisConfig<ChartsXAxisProps>
+    : DefaultizedAxisConfig<ChartsYAxisProps> = {};
 
-    const [minData, maxData] = getAxisExtremum(
-      axis,
-      axisDirection,
-      seriesConfig as ChartSeriesConfig<CartesianChartSeriesType>,
-      axisIndex,
-      formattedSeries,
-      zoom === undefined && !zoomOption ? getFilters : undefined, // Do not apply filtering if zoom is already defined.
-    );
-    const data = axis.data ?? [];
+  allAxis.forEach(
+    <S extends ScaleName>(
+      axis: AxisConfig<
+        S,
+        any,
+        typeof axisDirection extends 'x' ? ChartsXAxisProps : ChartsYAxisProps
+      >,
+      axisIndex: number,
+    ) => {
+      const zoomOption = zoomOptions?.[axis.id];
+      const zoom = zoomMap?.get(axis.id);
+      const zoomRange: [number, number] = zoom ? [zoom.start, zoom.end] : [0, 100];
+      const range = getRange(drawingArea, axisDirection, axis);
 
-    if (isBandScaleConfig(axis)) {
-      const categoryGapRatio = axis.categoryGapRatio ?? DEFAULT_CATEGORY_GAP_RATIO;
-      const barGapRatio = axis.barGapRatio ?? DEFAULT_BAR_GAP_RATIO;
-      // Reverse range because ordinal scales are presented from top to bottom on y-axis
-      const scaleRange = axisDirection === 'y' ? [range[1], range[0]] : range;
-      const zoomedRange = zoomScaleRange(scaleRange, zoomRange);
+      const [minData, maxData] = getAxisExtremum(
+        axis,
+        axisDirection,
+        seriesConfig as ChartSeriesConfig<CartesianChartSeriesType>,
+        axisIndex,
+        formattedSeries,
+        zoom === undefined && !zoomOption ? getFilters : undefined, // Do not apply filtering if zoom is already defined.
+      );
+      const data = axis.data ?? [];
 
-      completeAxis[axis.id] = {
-        offset: 0,
-        height: 0,
-        categoryGapRatio,
-        barGapRatio,
-        ...axis,
-        data,
-        scale: scaleBand(axis.data!, zoomedRange)
-          .paddingInner(categoryGapRatio)
-          .paddingOuter(categoryGapRatio / 2),
-        tickNumber: axis.data!.length,
-        colorScale:
-          axis.colorMap &&
-          (axis.colorMap.type === 'ordinal'
-            ? getOrdinalColorScale({ values: axis.data, ...axis.colorMap })
-            : getColorScale(axis.colorMap)),
-      };
+      if (isBandScaleConfig(axis)) {
+        const categoryGapRatio = axis.categoryGapRatio ?? DEFAULT_CATEGORY_GAP_RATIO;
+        const barGapRatio = axis.barGapRatio ?? DEFAULT_BAR_GAP_RATIO;
+        // Reverse range because ordinal scales are presented from top to bottom on y-axis
+        const scaleRange = axisDirection === 'y' ? [range[1], range[0]] : range;
+        const zoomedRange = zoomScaleRange(scaleRange, zoomRange);
 
-      if (isDateData(axis.data)) {
-        const dateFormatter = createDateFormatter(axis, scaleRange);
-        completeAxis[axis.id].valueFormatter = axis.valueFormatter ?? dateFormatter;
+        completeAxis[axis.id] = {
+          offset: 0,
+          width: 0,
+          height: 0,
+
+          categoryGapRatio,
+          barGapRatio,
+          ...axis,
+          data,
+          scale: scaleBand(axis.data!, zoomedRange)
+            .paddingInner(categoryGapRatio)
+            .paddingOuter(categoryGapRatio / 2),
+          tickNumber: axis.data!.length,
+          colorScale:
+            axis.colorMap &&
+            (axis.colorMap.type === 'ordinal'
+              ? getOrdinalColorScale({ values: axis.data, ...axis.colorMap })
+              : getSequentialColorScale(axis.colorMap)),
+        };
+
+        if (isDateData(axis.data)) {
+          const dateFormatter = createDateFormatter(axis, scaleRange);
+          completeAxis[axis.id].valueFormatter = axis.valueFormatter ?? dateFormatter;
+        }
       }
-    }
-    if (isPointScaleConfig(axis)) {
-      const scaleRange = axisDirection === 'y' ? [...range].reverse() : range;
-      const zoomedRange = zoomScaleRange(scaleRange, zoomRange);
+      if (isPointScaleConfig(axis)) {
+        const scaleRange = axisDirection === 'y' ? [...range].reverse() : range;
+        const zoomedRange = zoomScaleRange(scaleRange, zoomRange);
 
-      completeAxis[axis.id] = {
-        offset: 0,
-        height: 0,
-        ...axis,
-        data,
-        scale: scalePoint(axis.data!, zoomedRange),
-        tickNumber: axis.data!.length,
-        colorScale:
-          axis.colorMap &&
-          (axis.colorMap.type === 'ordinal'
-            ? getOrdinalColorScale({ values: axis.data, ...axis.colorMap })
-            : getColorScale(axis.colorMap)),
-      };
+        completeAxis[axis.id] = {
+          offset: 0,
+          height: 0,
+          width: 0,
+          ...axis,
+          data,
+          scale: scalePoint(axis.data!, zoomedRange),
+          tickNumber: axis.data!.length,
+          colorScale:
+            axis.colorMap &&
+            (axis.colorMap.type === 'ordinal'
+              ? getOrdinalColorScale({ values: axis.data, ...axis.colorMap })
+              : getSequentialColorScale(axis.colorMap)),
+        };
 
-      if (isDateData(axis.data)) {
-        const dateFormatter = createDateFormatter(axis, scaleRange);
-        completeAxis[axis.id].valueFormatter = axis.valueFormatter ?? dateFormatter;
+        if (isDateData(axis.data)) {
+          const dateFormatter = createDateFormatter(axis, scaleRange);
+          completeAxis[axis.id].valueFormatter = axis.valueFormatter ?? dateFormatter;
+        }
       }
-    }
 
-    if (axis.scaleType === 'band' || axis.scaleType === 'point') {
-      // Could be merged with the two previous "if conditions" but then TS does not get that `axis.scaleType` can't be `band` or `point`.
-      return;
-    }
+      if (axis.scaleType === 'band' || axis.scaleType === 'point') {
+        // Could be merged with the two previous "if conditions" but then TS does not get that `axis.scaleType` can't be `band` or `point`.
+        return;
+      }
 
-    const scaleType = axis.scaleType ?? ('linear' as const);
+      switch (axis.scaleType) {
+        case 'linear':
+        case 'pow':
+          {
+            const scaleType = axis.scaleType ?? ('linear' as const);
 
-    const domainLimit = axis.domainLimit ?? 'nice';
+            const domainLimit = axis.domainLimit ?? 'nice';
 
-    const axisExtremums = [axis.min ?? minData, axis.max ?? maxData];
+            const axisExtremums = [axis.min ?? minData, axis.max ?? maxData];
 
-    if (typeof domainLimit === 'function') {
-      const { min, max } = domainLimit(minData, maxData);
-      axisExtremums[0] = min;
-      axisExtremums[1] = max;
-    }
+            if (typeof domainLimit === 'function') {
+              const { min, max } = domainLimit(minData, maxData);
+              axisExtremums[0] = min;
+              axisExtremums[1] = max;
+            }
 
-    const rawTickNumber = getTickNumber({ ...axis, range, domain: axisExtremums });
-    const tickNumber = rawTickNumber / ((zoomRange[1] - zoomRange[0]) / 100);
+            const rawTickNumber = getTickNumber({ ...axis, range, domain: axisExtremums });
+            const tickNumber = rawTickNumber / ((zoomRange[1] - zoomRange[0]) / 100);
 
-    const zoomedRange = zoomScaleRange(range, zoomRange);
+            const zoomedRange = zoomScaleRange(range, zoomRange);
 
-    const scale = getScale(scaleType, axisExtremums, zoomedRange);
-    const finalScale = domainLimit === 'nice' ? scale.nice(rawTickNumber) : scale;
-    const [minDomain, maxDomain] = finalScale.domain();
-    const domain = [axis.min ?? minDomain, axis.max ?? maxDomain];
+            const scale = getScale(scaleType, axisExtremums, zoomedRange);
+            const finalScale = domainLimit === 'nice' ? scale.nice(rawTickNumber) : scale;
+            const [minDomain, maxDomain] = finalScale.domain();
+            const domain = [axis.min ?? minDomain, axis.max ?? maxDomain];
+            finalScale.domain(domain);
 
-    completeAxis[axis.id] = {
-      offset: 0,
-      height: 0,
-      ...axis,
-      data,
-      scaleType: scaleType as any,
-      scale: finalScale.domain(domain) as any,
-      tickNumber,
-      colorScale: axis.colorMap && getColorScale(axis.colorMap),
-    };
-  });
+            completeAxis[axis.id] = {
+              offset: 0,
+              height: 0,
+              width: 0,
+              ...axis,
+              data,
+              scaleType,
+              scale: finalScale,
+              tickNumber,
+              colorScale: axis.colorMap && getSequentialColorScale(axis.colorMap),
+            };
+          }
+          break;
+
+        default:
+          break;
+      }
+    },
+  );
   return {
     axis: completeAxis,
     axisIds: allAxis.map(({ id }) => id),

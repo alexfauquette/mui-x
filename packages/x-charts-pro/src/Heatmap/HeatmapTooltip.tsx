@@ -15,7 +15,13 @@ import {
   ChartsTooltipContainer,
 } from '@mui/x-charts/ChartsTooltip';
 import { useXAxis, useYAxis } from '@mui/x-charts/hooks';
-import { getLabel, ChartsLabelMark } from '@mui/x-charts/internals';
+import {
+  getLabel,
+  ChartsLabelMark,
+  AxisDefaultized,
+  ChartsXAxisProps,
+  ChartsYAxisProps,
+} from '@mui/x-charts/internals';
 import { useHeatmapSeriesContext } from '../hooks/useHeatmapSeries';
 
 export interface HeatmapTooltipProps
@@ -50,8 +56,8 @@ const useUtilityClasses = (ownerState: { classes: HeatmapTooltipProps['classes']
 function DefaultHeatmapTooltipContent(props: Pick<HeatmapTooltipProps, 'classes'>) {
   const { classes } = props;
 
-  const xAxis = useXAxis();
-  const yAxis = useYAxis();
+  const xAxis = useXAxis() as AxisDefaultized<'band', any, ChartsXAxisProps>;
+  const yAxis = useYAxis() as AxisDefaultized<'band', any, ChartsYAxisProps>;
   const heatmapSeries = useHeatmapSeriesContext();
 
   const tooltipData = useItemTooltip<'heatmap'>();

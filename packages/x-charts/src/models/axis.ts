@@ -66,7 +66,7 @@ export interface ChartsAxisSlotProps {
   axisLabel?: Partial<ChartsTextProps>;
 }
 
-export interface ChartsAxisProps extends TickParams {
+export interface ChartsCommonAxisProps extends TickParams {
   /**
    * The id of the axis to render.
    * If undefined, it will be the first defined axis.
@@ -133,11 +133,11 @@ export interface ChartsAxisProps extends TickParams {
   sx?: SxProps;
 }
 
-export interface ChartsYAxisProps extends ChartsAxisProps {
+export interface ChartsYAxisProps extends ChartsCommonAxisProps {
   axis?: 'y';
 }
 
-export interface ChartsXAxisProps extends ChartsAxisProps {
+export interface ChartsXAxisProps extends ChartsCommonAxisProps {
   axis?: 'x';
   /**
    * The minimum gap in pixels between two tick labels.
@@ -147,7 +147,9 @@ export interface ChartsXAxisProps extends ChartsAxisProps {
   tickLabelMinGap?: number;
 }
 
-type AxisSideConfig<AxisProps extends ChartsAxisProps> = AxisProps extends ChartsXAxisProps
+export type ChartsAxisProps = ChartsYAxisProps | ChartsXAxisProps;
+
+type AxisSideConfig<AxisProps extends ChartsCommonAxisProps> = AxisProps extends ChartsXAxisProps
   ? {
       /**
        * Position of the axis.
@@ -189,7 +191,7 @@ type AxisSideConfig<AxisProps extends ChartsAxisProps> = AxisProps extends Chart
         width?: number;
       };
 
-export interface ChartsRotationAxisProps extends ChartsAxisProps {
+export interface ChartsRotationAxisProps extends ChartsCommonAxisProps {
   /**
    * The start angle (in deg).
    */
@@ -204,7 +206,7 @@ export interface ChartsRotationAxisProps extends ChartsAxisProps {
   labelGap?: number;
 }
 
-export interface ChartsRadiusAxisProps extends ChartsAxisProps {
+export interface ChartsRadiusAxisProps extends ChartsCommonAxisProps {
   /**
    * The minimal radius.
    */
@@ -244,32 +246,32 @@ export interface AxisScaleConfig {
   log: {
     scaleType: 'log';
     scale: ScaleLogarithmic<number, number>;
-    colorMap?: ContinuousColorConfig | PiecewiseColorConfig;
+    colorMap?: ContinuousColorConfig<number> | PiecewiseColorConfig<number>;
   };
   pow: {
     scaleType: 'pow';
     scale: ScalePower<number, number>;
-    colorMap?: ContinuousColorConfig | PiecewiseColorConfig;
+    colorMap?: ContinuousColorConfig<number> | PiecewiseColorConfig<number>;
   };
   sqrt: {
     scaleType: 'sqrt';
     scale: ScalePower<number, number>;
-    colorMap?: ContinuousColorConfig | PiecewiseColorConfig;
+    colorMap?: ContinuousColorConfig<number> | PiecewiseColorConfig<number>;
   };
   time: {
     scaleType: 'time';
     scale: ScaleTime<number, number>;
-    colorMap?: ContinuousColorConfig | PiecewiseColorConfig;
+    colorMap?: ContinuousColorConfig<Date> | PiecewiseColorConfig<Date>;
   };
   utc: {
     scaleType: 'utc';
     scale: ScaleTime<number, number>;
-    colorMap?: ContinuousColorConfig | PiecewiseColorConfig;
+    colorMap?: ContinuousColorConfig<Date> | PiecewiseColorConfig<Date>;
   };
   linear: {
     scaleType: 'linear';
     scale: ScaleLinear<number, number>;
-    colorMap?: ContinuousColorConfig | PiecewiseColorConfig;
+    colorMap?: ContinuousColorConfig<number> | PiecewiseColorConfig<number>;
   };
 }
 
@@ -316,7 +318,7 @@ export interface AxisScaleComputedConfig {
   };
 }
 
-export type AxisValueFormatterContext<S extends ScaleName = ScaleName> =
+export type AxisValueFormatterContext =
   | {
       /**
        * Location indicates where the value will be displayed.
@@ -337,13 +339,13 @@ export type AxisValueFormatterContext<S extends ScaleName = ScaleName> =
       /**
        * The d3-scale instance associated to the axis.
        */
-      scale: AxisScaleConfig[S]['scale'];
+      scale: D3ScaleUnion<ScaleName>;
     };
 
 /**
  * Config that is shared between cartesian and polar axes.
  */
-type CommonAxisConfig<S extends ScaleName = ScaleName, V = any> = {
+type CommonAxisConfig<V = any> = {
   /**
    * Id used to identify the axis.
    */
@@ -372,10 +374,7 @@ type CommonAxisConfig<S extends ScaleName = ScaleName, V = any> = {
    * @param {AxisValueFormatterContext} context The rendering context of the value.
    * @returns {string} The string to display.
    */
-  valueFormatter?: <TScaleName extends S>(
-    value: V,
-    context: AxisValueFormatterContext<TScaleName>,
-  ) => string;
+  valueFormatter?: (value: V, context: AxisValueFormatterContext) => string;
   /**
    * If `true`, hide this value in the tooltip
    */
@@ -397,37 +396,43 @@ export type PolarAxisConfig<
   S extends ScaleName = ScaleName,
   V = any,
   AxisProps extends ChartsAxisProps = ChartsRotationAxisProps | ChartsRadiusAxisProps,
-> = {
-  /**
-   * The offset of the axis in pixels. It can be used to move the axis from its default position.
-   * X-axis: A top axis will move up, and a bottom axis will move down.
-   * Y-axis: A left axis will move left, and a right axis will move right.
-   * @default 0
-   */
-  offset?: number;
-} & CommonAxisConfig<S, V> &
-  Omit<Partial<AxisProps>, 'axisId'> &
-  Partial<Omit<AxisScaleConfig[S], 'scale'>> &
-  AxisConfigExtension;
+> = S extends ScaleName
+  ? {
+      /**
+       * The offset of the axis in pixels. It can be used to move the axis from its default position.
+       * X-axis: A top axis will move up, and a bottom axis will move down.
+       * Y-axis: A left axis will move left, and a right axis will move right.
+       * @default 0
+       */
+      offset?: number;
+    } & CommonAxisConfig<V> &
+      Omit<Partial<AxisProps>, 'axisId'> &
+      Partial<Omit<AxisScaleConfig[S], 'scale'>> &
+      AxisConfigExtension
+  : never;
 
 export type AxisConfig<
   S extends ScaleName = ScaleName,
   V = any,
   AxisProps extends ChartsAxisProps = ChartsXAxisProps | ChartsYAxisProps,
-> = {
-  /**
-   * The offset of the axis in pixels. It can be used to move the axis from its default position.
-   * X-axis: A top axis will move up, and a bottom axis will move down.
-   * Y-axis: A left axis will move left, and a right axis will move right.
-   * @default 0
-   */
-  offset?: number;
-} & CommonAxisConfig<S, V> &
-  Omit<Partial<AxisProps>, 'axisId'> &
-  Partial<Omit<AxisScaleConfig[S], 'scale'>> &
-  AxisSideConfig<AxisProps> &
-  TickParams &
-  AxisConfigExtension;
+> = S extends any
+  ? AxisProps extends any
+    ? {
+        /**
+         * The offset of the axis in pixels. It can be used to move the axis from its default position.
+         * X-axis: A top axis will move up, and a bottom axis will move down.
+         * Y-axis: A left axis will move left, and a right axis will move right.
+         * @default 0
+         */
+        offset?: number;
+      } & CommonAxisConfig<V> &
+        Omit<Partial<AxisProps>, 'axisId'> &
+        Partial<Omit<AxisScaleConfig[S], 'scale'>> &
+        AxisSideConfig<AxisProps> &
+        TickParams &
+        AxisConfigExtension
+    : never
+  : never;
 
 export interface AxisConfigExtension {}
 
@@ -435,26 +440,34 @@ export type PolarAxisDefaultized<
   S extends ScaleName = ScaleName,
   V = any,
   AxisProps extends ChartsAxisProps = ChartsRotationAxisProps | ChartsRadiusAxisProps,
-> = Omit<PolarAxisConfig<S, V, AxisProps>, 'scaleType'> &
-  AxisScaleConfig[S] &
-  AxisScaleComputedConfig[S];
+> = S extends ScaleName
+  ? Omit<PolarAxisConfig<S, V, AxisProps>, 'scaleType'> &
+      AxisScaleConfig[S] &
+      AxisScaleComputedConfig[S]
+  : never;
 
 export type AxisDefaultized<
   S extends ScaleName = ScaleName,
   V = any,
-  AxisProps extends ChartsAxisProps = ChartsXAxisProps | ChartsYAxisProps,
-> = MakeRequired<Omit<AxisConfig<S, V, AxisProps>, 'scaleType'>, 'offset'> &
-  AxisScaleConfig[S] &
-  AxisScaleComputedConfig[S] & {
-    /**
-     * An indication of the expected number of ticks.
-     */
-    tickNumber: number;
-  } & (AxisProps extends ChartsXAxisProps
-    ? MakeRequired<AxisSideConfig<AxisProps>, 'height'>
-    : AxisProps extends ChartsYAxisProps
-      ? MakeRequired<AxisSideConfig<AxisProps>, 'width'>
-      : AxisSideConfig<AxisProps>);
+  AxisProps extends ChartsCommonAxisProps = ChartsXAxisProps | ChartsYAxisProps,
+> = S extends any
+  ? MakeRequired<AxisConfig<S, V, AxisProps>, 'offset'> &
+      AxisScaleConfig[S] &
+      AxisScaleComputedConfig[S] & {
+        /**
+         * An indication of the expected number of ticks.
+         */
+        tickNumber: number;
+      } & (AxisProps extends ChartsXAxisProps
+        ? MakeRequired<AxisSideConfig<AxisProps>, 'height'>
+        : (AxisProps extends ChartsYAxisProps
+          ? MakeRequired<AxisSideConfig<AxisProps>, 'width'>
+          : AxisSideConfig<AxisProps>))
+  : never;
+
+export type D3ScaleUnion<S extends ScaleName = ScaleName> = S extends any
+  ? AxisScaleConfig[S]['scale']
+  : never;
 
 export function isBandScaleConfig(
   scaleConfig: AxisConfig<ScaleName>,
