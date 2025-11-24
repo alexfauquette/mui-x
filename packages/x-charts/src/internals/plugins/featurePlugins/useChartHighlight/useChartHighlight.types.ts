@@ -1,4 +1,3 @@
-import { DefaultizedProps } from '@mui/x-internals/types';
 import { ChartPluginSignature } from '../../models';
 import { SeriesId } from '../../../../models/seriesType/common';
 import { UseChartSeriesSignature } from '../../corePlugins/useChartSeries';
@@ -58,11 +57,6 @@ export interface UseChartHighlightParameters {
   onHighlightChange?: (highlightedItem: HighlightItemData | null) => void;
 }
 
-export type UseChartHighlightDefaultizedParameters = DefaultizedProps<
-  UseChartHighlightParameters,
-  'highlightedItem'
->;
-
 export interface UseChartHighlightState {
   highlight: {
     /**
@@ -85,7 +79,6 @@ export type UseChartHighlightSignature = ChartPluginSignature<{
   instance: UseChartHighlightInstance;
   state: UseChartHighlightState;
   params: UseChartHighlightParameters;
-  defaultizedParams: UseChartHighlightDefaultizedParameters;
-  modelNames: 'highlightedItem';
+  defaultizedParams: UseChartHighlightParameters;
   dependencies: [UseChartSeriesSignature];
 }>;

@@ -17,7 +17,7 @@ export const useChartHighlight: ChartPlugin<UseChartHighlightSignature> = ({ sto
 
   useEnhancedEffect(() => {
     if (store.state.highlight.item !== params.highlightedItem) {
-      store.set('highlight', { ...store.state.highlight, item: params.highlightedItem });
+      store.set('highlight', { ...store.state.highlight, item: params.highlightedItem ?? null });
     }
     if (process.env.NODE_ENV !== 'production') {
       if (params.highlightedItem !== undefined && !store.state.highlight.isControlled) {
@@ -70,7 +70,7 @@ export const useChartHighlight: ChartPlugin<UseChartHighlightSignature> = ({ sto
 
 useChartHighlight.getInitialState = (params) => ({
   highlight: {
-    item: params.highlightedItem,
+    item: params.highlightedItem ?? null,
     lastUpdate: 'pointer',
     isControlled: params.highlightedItem !== undefined,
   },
