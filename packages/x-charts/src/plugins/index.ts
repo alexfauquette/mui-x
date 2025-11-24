@@ -28,3 +28,7 @@ export {
   useChartZAxis,
   type UseChartZAxisSignature,
 } from '../internals/plugins/featurePlugins/useChartZAxis';
+export {
+  useChartTooltip,
+  type UseChartTooltipSignature,
+} from '../internals/plugins/featurePlugins/useChartTooltip';

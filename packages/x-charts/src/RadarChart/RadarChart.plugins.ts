@@ -10,11 +10,21 @@ import {
   useChartHighlight,
   UseChartHighlightSignature,
 } from '../internals/plugins/featurePlugins/useChartHighlight';
+import {
+  useChartTooltip,
+  UseChartTooltipSignature,
+} from '../internals/plugins/featurePlugins/useChartTooltip';
 
-export const RADAR_PLUGINS = [useChartInteraction, useChartPolarAxis, useChartHighlight] as const;
+export const RADAR_PLUGINS = [
+  useChartInteraction,
+  useChartPolarAxis,
+  useChartHighlight,
+  useChartTooltip,
+] as const;
 
 export type RadarChartPluginSignatures = [
   UseChartInteractionSignature,
   UseChartPolarAxisSignature,
   UseChartHighlightSignature,
+  UseChartTooltipSignature,
 ];

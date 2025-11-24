@@ -24,7 +24,6 @@ import { getNodeAlignFunction } from './utils';
 export function calculateSankeyLayout(
   data: DefaultizedSankeySeriesType['data'],
   drawingArea: ChartDrawingArea,
-  theme: Theme,
   series: Pick<SankeySeriesType, 'nodeOptions' | 'linkOptions' | 'iterations'> = {},
 ): SankeyLayout {
   const { iterations = 6, nodeOptions, linkOptions } = series;

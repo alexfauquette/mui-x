@@ -13,6 +13,7 @@ import {
   UseChartBrushSignature,
   ConvertSignaturesIntoPlugins,
 } from '@mui/x-charts/internals';
+import { useChartTooltip, UseChartTooltipSignature } from '@mui/x-charts/plugins';
 import {
   useChartProExport,
   UseChartProExportSignature,
@@ -26,6 +27,7 @@ export type LineChartProPluginSignatures = [
   UseChartCartesianAxisSignature<'line'>,
   UseChartHighlightSignature,
   UseChartKeyboardNavigationSignature,
+  UseChartTooltipSignature,
   UseChartProZoomSignature,
   UseChartProExportSignature,
 ];
@@ -37,6 +39,7 @@ export const LINE_CHART_PRO_PLUGINS: ConvertSignaturesIntoPlugins<LineChartProPl
   useChartCartesianAxis,
   useChartHighlight,
   useChartKeyboardNavigation,
+  useChartTooltip,
   useChartProZoom,
   useChartProExport,
 ];

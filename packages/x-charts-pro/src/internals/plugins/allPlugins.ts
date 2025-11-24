@@ -16,6 +16,7 @@ import {
   useChartBrush,
   UseChartBrushSignature,
 } from '@mui/x-charts/internals';
+import { useChartTooltip, UseChartTooltipSignature } from '@mui/x-charts/plugins';
 import { useChartProExport, UseChartProExportSignature } from './useChartProExport';
 import { useChartProZoom, UseChartProZoomSignature } from './useChartProZoom';
 
@@ -26,6 +27,7 @@ export type AllPluginSignatures<TSeries extends ChartSeriesType = ChartSeriesTyp
   UseChartCartesianAxisSignature<TSeries>,
   UseChartPolarAxisSignature<TSeries>,
   UseChartHighlightSignature,
+  UseChartTooltipSignature,
   UseChartProZoomSignature,
   UseChartProExportSignature,
 ];
@@ -40,6 +42,7 @@ export const ALL_PLUGINS = [
   useChartCartesianAxis,
   useChartPolarAxis,
   useChartHighlight,
+  useChartTooltip,
   useChartProZoom,
   useChartProExport,
 ];
@@ -51,6 +54,7 @@ export type DefaultPluginSignatures<TSeries extends ChartSeriesType = ChartSerie
   UseChartCartesianAxisSignature<TSeries>,
   UseChartPolarAxisSignature<TSeries>,
   UseChartHighlightSignature,
+  UseChartTooltipSignature,
   UseChartProZoomSignature,
   UseChartProExportSignature,
 ];
@@ -64,6 +68,7 @@ export const DEFAULT_PLUGINS = [
   useChartInteraction,
   useChartCartesianAxis,
   useChartHighlight,
+  useChartTooltip,
   useChartProZoom,
   useChartProExport,
 ];

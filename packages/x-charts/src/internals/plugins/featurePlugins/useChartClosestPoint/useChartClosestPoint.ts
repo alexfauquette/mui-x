@@ -163,13 +163,13 @@ export const useChartClosestPoint: ChartPlugin<UseChartClosestPointSignature> = 
       }
 
       if (closestPoint === 'outside-voronoi-max-radius' || closestPoint === 'no-point-found') {
-        instance.removeItemInteraction?.();
+        instance.removeTooltipItem?.();
         instance.clearHighlight?.();
         return;
       }
 
       const { seriesId, dataIndex } = closestPoint;
-      instance.setItemInteraction?.(
+      instance.setTooltipItem?.(
         { type: 'scatter', seriesId, dataIndex },
         { interaction: 'pointer' },
       );

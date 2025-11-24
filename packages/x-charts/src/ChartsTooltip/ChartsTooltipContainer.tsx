@@ -12,10 +12,10 @@ import { ChartsTooltipClasses, useUtilityClasses } from './chartsTooltipClasses'
 import { useSelector } from '../internals/store/useSelector';
 import { useStore } from '../internals/store/useStore';
 import {
-  selectorChartsLastInteraction,
+  selectorChartsTooltipAnchor,
   selectorChartsTooltipItemIsDefined,
   selectorChartsTooltipItemPosition,
-} from '../internals/plugins/featurePlugins/useChartInteraction';
+} from '../internals/plugins/featurePlugins/useChartTooltip/useChartTooltip.selectors';
 import {
   selectorChartsInteractionAxisTooltip,
   UseChartCartesianAxisSignature,
@@ -123,8 +123,7 @@ function ChartsTooltipContainer(inProps: ChartsTooltipContainerProps) {
     getIsOpenSelector(trigger, axisSystem, shouldPreventBecauseOfBrush),
   );
 
-  const lastInteraction = useSelector(store, selectorChartsLastInteraction);
-  const computedAnchor = lastInteraction === 'keyboard' ? 'node' : anchor;
+  const computedAnchor = useSelector(store, selectorChartsTooltipAnchor, anchor);
 
   const itemPosition = useSelector(
     store,

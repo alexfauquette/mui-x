@@ -27,6 +27,10 @@ import {
   useChartBrush,
   UseChartBrushSignature,
 } from '../internals/plugins/featurePlugins/useChartBrush';
+import {
+  useChartTooltip,
+  UseChartTooltipSignature,
+} from '../internals/plugins/featurePlugins/useChartTooltip';
 
 export type ScatterChartPluginSignatures = [
   UseChartZAxisSignature,
@@ -36,6 +40,7 @@ export type ScatterChartPluginSignatures = [
   UseChartHighlightSignature,
   UseChartClosestPointSignature,
   UseChartKeyboardNavigationSignature,
+  UseChartTooltipSignature,
 ];
 
 export const SCATTER_CHART_PLUGINS: ConvertSignaturesIntoPlugins<ScatterChartPluginSignatures> = [
@@ -46,4 +51,5 @@ export const SCATTER_CHART_PLUGINS: ConvertSignaturesIntoPlugins<ScatterChartPlu
   useChartHighlight,
   useChartClosestPoint,
   useChartKeyboardNavigation,
+  useChartTooltip,
 ];

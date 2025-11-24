@@ -15,6 +15,7 @@ import {
   UseChartBrushSignature,
   ConvertSignaturesIntoPlugins,
 } from '@mui/x-charts/internals';
+import { useChartTooltip, UseChartTooltipSignature } from '@mui/x-charts/plugins';
 import {
   useChartProExport,
   UseChartProExportSignature,
@@ -29,6 +30,7 @@ export type ScatterChartProPluginSignatures = [
   UseChartHighlightSignature,
   UseChartClosestPointSignature,
   UseChartKeyboardNavigationSignature,
+  UseChartTooltipSignature,
   UseChartProZoomSignature,
   UseChartProExportSignature,
 ];
@@ -42,6 +44,7 @@ export const SCATTER_CHART_PRO_PLUGINS: ConvertSignaturesIntoPlugins<ScatterChar
     useChartHighlight,
     useChartClosestPoint,
     useChartKeyboardNavigation,
+    useChartTooltip,
     useChartProZoom,
     useChartProExport,
   ];

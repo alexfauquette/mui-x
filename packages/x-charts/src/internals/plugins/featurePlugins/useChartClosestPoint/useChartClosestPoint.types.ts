@@ -4,6 +4,7 @@ import { ChartPluginSignature } from '../../models';
 import { UseChartCartesianAxisSignature } from '../useChartCartesianAxis';
 import { UseChartHighlightSignature } from '../useChartHighlight';
 import { UseChartInteractionSignature } from '../useChartInteraction';
+import { UseChartTooltipSignature } from '../useChartTooltip';
 
 export interface UseChartVoronoiInstance {
   /**
@@ -62,5 +63,5 @@ export type UseChartClosestPointSignature = ChartPluginSignature<{
   params: UseChartVoronoiParameters;
   defaultizedParams: UseChartVoronoiDefaultizedParameters;
   dependencies: [UseChartSeriesSignature, UseChartCartesianAxisSignature];
-  optionalDependencies: [UseChartInteractionSignature, UseChartHighlightSignature];
+  optionalDependencies: [UseChartInteractionSignature, UseChartTooltipSignature, UseChartHighlightSignature];
 }>;
