@@ -6,6 +6,7 @@ import type {
 import { getSeriesWithDefaultValues } from './getSeriesWithDefaultValues';
 import { tooltipGetter } from './tooltipGetter';
 import { calculateSankeyLayout } from '../calculateSankeyLayout';
+import tooltipItemPositionGetter from './tooltipPosition';
 
 // Simple passthrough functions for sankey chart
 const seriesProcessor = (series: any) => series;
@@ -33,5 +34,6 @@ export const sankeySeriesConfig: ChartSeriesTypeConfig<'sankey'> = {
   colorProcessor,
   legendGetter,
   tooltipGetter,
+  tooltipItemPositionGetter,
   getSeriesWithDefaultValues,
 };
