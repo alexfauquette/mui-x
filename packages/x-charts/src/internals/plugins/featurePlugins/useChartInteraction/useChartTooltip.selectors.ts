@@ -7,7 +7,7 @@ import {
 import {
   ProcessedSeries,
   selectorChartSeriesConfig,
-  selectorChartSeriesProcessed,
+  selectorChartSeriesWithPositions,
 } from '../../corePlugins/useChartSeries';
 import { TooltipPositionGetterAxesConfig } from '../../models/seriesConfig/tooltipItemPositionGetter.types';
 import {
@@ -53,7 +53,7 @@ export const selectorChartsTooltipItemPosition = createSelector(
   selectorChartSeriesConfig,
   selectorChartXAxis,
   selectorChartYAxis,
-  selectorChartSeriesProcessed,
+  selectorChartSeriesWithPositions,
 
   function selectorChartsTooltipItemPosition<T extends ChartSeriesType>(
     identifier: ChartItemIdentifierWithData<T> | null,

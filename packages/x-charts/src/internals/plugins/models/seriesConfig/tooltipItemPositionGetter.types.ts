@@ -10,7 +10,7 @@ import {
   ComputedYAxis,
 } from '../../../../models/axis';
 import { ChartDrawingArea } from '../../../../hooks/useDrawingArea';
-import { ProcessedSeries } from '../../corePlugins/useChartSeries';
+import { SeriesWithPositions } from '../../corePlugins/useChartSeries';
 
 export interface TooltipPositionGetterAxesConfig {
   x?: ComputedXAxis;
@@ -20,7 +20,7 @@ export interface TooltipPositionGetterAxesConfig {
 }
 
 export type TooltipItemPositionGetter<TSeriesType extends ChartSeriesType> = (params: {
-  series: ProcessedSeries<TSeriesType>;
+  series: SeriesWithPositions<TSeriesType>;
   axesConfig: TooltipPositionGetterAxesConfig;
   drawingArea: ChartDrawingArea;
   identifier: ChartItemIdentifierWithData<TSeriesType> | null;
