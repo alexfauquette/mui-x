@@ -48,14 +48,6 @@ Date and Time Pickers use ARIA roles and robust focus management across the inte
 
 ## Keyboard support
 
-:::warning
-This feature is under development.
-The way keyboard interaction is visualized will evolve.
-
-For example the element highlight, or tooltip will be impacted by the feature.
-Those modifications will not be considered as breaking changes and so be added during minor or patch versions.
-:::
-
 Set `enableKeyboardNavigation` to `true` to enable the keyboard navigation on your charts.
 You can also enable it globally using [theme default props](/material-ui/customization/theme-components/#theme-default-props)
 
