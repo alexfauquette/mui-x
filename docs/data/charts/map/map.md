@@ -154,6 +154,37 @@ series={[
 
 See the [Dataset](/x/react-charts/dataset/) page to learn more.
 
+## Mapping `geoData` features to values
+
+By default, each GeoJSON feature is identified by its `properties.name` field.
+This name is the key used to join your data to the features.
+If multiple features have the same name, they wil be assigned the same value.
+
+When your `geoData` stores the identifier under a different property, use the `featuresName` prop to point to it.
+It accepts either a string—the property key to read—or a function that receives the feature properties and returns the name.
+
+```tsx
+<Unstable_ChartsGeoDataProviderPremium
+  geoData={geoData}
+  // Read the identifier from `feature.properties.iso`
+  featuresName="iso"
+  // Derive the identifier from several properties
+  featuresName={(properties) => `${properties.region}-${properties.code}`}
+>
+  {/* ... */}
+</Unstable_ChartsGeoDataProviderPremium>
+```
+
+For example if your `geoData` saves the country identifier as a `code` property, and your data apy returns a dataset with `country-iso` you can map your data with the map by using
+
+```tsx
+<Unstable_ChartsGeoDataProviderPremium
+  geoData={geoData}
+  featuresName="iso"
+  series={[{ datasetKeys: { name: 'country-iso' } }]}
+/>
+```
+
 ## Managing the highlight with `highlightScope`
 
 Each `mapShape` series accepts a `highlightScope` property that controls how hovering an item

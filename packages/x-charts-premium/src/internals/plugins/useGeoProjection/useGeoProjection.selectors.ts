@@ -24,6 +24,7 @@ import {
 } from '@mui/x-charts-vendor/d3-geo';
 import type {
   D3NamedProjection,
+  GeoJsonProperties,
   GeoProjectionInput,
   UseGeoProjectionSignature,
   UseGeoProjectionState,
@@ -58,6 +59,13 @@ const isConicProjection = (projection: GeoProjection): projection is GeoConicPro
 export const selectorChartGeoProjectionState = (
   state: ChartState<[], [UseGeoProjectionSignature]>,
 ): UseGeoProjectionState['geoProjection'] | undefined => state.geoProjection;
+
+export const selectorChartGetFeatureName: (
+  state: ChartState<[], [UseGeoProjectionSignature]>,
+) => string | ((feature: GeoJsonProperties) => string) = createSelector(
+  selectorChartGeoProjectionState,
+  (geoProjection) => geoProjection?.featuresName ?? 'name',
+);
 
 export const selectorChartRawGeoData: (
   state: ChartState<[], [UseGeoProjectionSignature]>,
@@ -101,13 +109,17 @@ const selectorChartParallels = createSelectorMemoized(
  */
 export const selectorChartGeoFeatureIndexesByName = createSelectorMemoized(
   selectorChartRawGeoData,
-  (geoData): ReadonlyMap<string, number[]> => {
+  selectorChartGetFeatureName,
+  (geoData, getFeatureName): ReadonlyMap<string, number[]> => {
     const map = new Map<string, number[]>();
     if (!geoData) {
       return map;
     }
     geoData.features.forEach((feature, index) => {
-      const name = feature.properties?.name;
+      const name =
+        typeof getFeatureName === 'function'
+          ? getFeatureName(feature.properties)
+          : feature.properties?.[getFeatureName as string];
       if (typeof name !== 'string') {
         return;
       }
